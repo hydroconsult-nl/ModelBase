@@ -1,0 +1,34 @@
+# Builds ModelBase on every push and pull request, against the HYDROC01 NuGet package,
+# and keeps the Release output as a build artifact.
+# Reading HYDROC01/HYDROC02/Deltares.UGrid from the feed with GITHUB_TOKEN requires that those
+# packages grant this repository read access (package settings > Manage Actions access).
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Credentials for the hydroconsult feed
+        run: dotnet nuget update source hydroconsult --configfile nuget.config --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+
+      - name: Build
+        run: msbuild ModelBase.sln /restore /p:Configuration=Release /p:Platform=x64 /p:UseHYDROC01Project=false /v:m
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ModelBase
+          path: bin/Release/net7.0-windows/
