@@ -10,16 +10,20 @@
     <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- HYDROC01: project reference when HYDROC01 is checked out next to this repository (development),
+         otherwise the NuGet package. Force one with /p:UseHYDROC01Project=true|false. -->
+    <HYDROC01Version>2.9.5</HYDROC01Version>
+    <UseHYDROC01Project Condition="'$(UseHYDROC01Project)' == '' and Exists('$(MSBuildThisFileDirectory)..\HYDROC01\HYDROC01\HYDROC01.vbproj')">true</UseHYDROC01Project>
+  </PropertyGroup>
+
   <ItemGroup>
-    <COMReference Include="MapWinGIS">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>3</VersionMinor>
-      <VersionMajor>5</VersionMajor>
-      <Guid>c368d713-cc5f-40ed-9f53-f84fe197b96a</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
+    <!-- MapWinGIS interop assembly in the repository, so the build does not need a registered MapWinGIS -->
+    <Reference Include="Interop.MapWinGIS">
+      <HintPath>References\MapWinGIS\Interop.MapWinGIS.dll</HintPath>
       <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +38,16 @@
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseHYDROC01Project)' != 'true'">
+    <PackageReference Include="HYDROC01" Version="$(HYDROC01Version)" />
+    <!-- HYDROC01 needs the net40 ProtoBufRemote.dll; for net7.0 the package only offers ProtoBufRemote.Core.dll -->
+    <PackageReference Include="ProtoBufRemote" Version="1.0.11" GeneratePathProperty="true" ExcludeAssets="compile;runtime" />
+    <Reference Include="ProtoBufRemote">
+      <HintPath>$(PkgProtoBufRemote)\lib\net40\ProtoBufRemote.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseHYDROC01Project)' == 'true'">
     <ProjectReference Include="..\HYDROC01\HYDROC01\HYDROC01.vbproj" />
     <ProjectReference Include="..\HYDROC02\HYDROC02.csproj" />
   </ItemGroup>
