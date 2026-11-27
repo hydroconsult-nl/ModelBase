@@ -19,6 +19,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tags, for the version check
+
+      - name: Version check (VERSIONING.md)
+        shell: pwsh
+        run: .github/scripts/check-version.ps1 -Sources 'msbuild=ModelBase.vbproj','iss=InnoSetup/Modelbase.iss','releasenotes=InnoSetup/releasenotes.txt'
 
       - uses: microsoft/setup-msbuild@v2
 

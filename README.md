@@ -30,3 +30,6 @@ GitHub Packages always needs a login, also for reading. Create a personal access
 ```
 dotnet nuget add source https://nuget.pkg.github.com/hydroconsult-nl/index.json --name hydroconsult --username <github-user> --password <token> --store-password-in-clear-text
 ```
+
+## Versioning
+Version numbers follow [VERSIONING.md](VERSIONING.md); the CI checks that all files state the same version.
